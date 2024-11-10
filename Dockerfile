@@ -1,17 +1,35 @@
-# 使用一个小的基础镜像来运行你的 Go 程序
-FROM alpine:latest
+# Step 1: Build the Go binary
+FROM golang:1.23-alpine AS builder
 
-# 安装必要的依赖，通常是 CA 证书
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go Modules manifests
+COPY go.mod go.sum ./
+
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum are not changed
+RUN go mod tidy
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o newsbot .
+
+# Step 2: Create the final image using a smaller base image
+FROM alpine:latest  
+
+# Install necessary certificates for HTTPS requests (if needed)
 RUN apk --no-cache add ca-certificates
 
-# 设置工作目录
+# Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# 将编译好的二进制文件从本机复制到容器中
-COPY newsbot .
+# Copy the pre-built binary from the builder stage
+COPY --from=builder /app/newsbot .
 
-# 暴露容器的端口（例如 8080）
+# Expose the port your application runs on
 EXPOSE 8080
 
-# 设置容器启动时运行的命令
+# Command to run the application
 CMD ["./newsbot"]
