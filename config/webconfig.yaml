@@ -2,10 +2,26 @@ sites:
   - name: "英伟达"
     base_url: "https://nvidianews.nvidia.com/"
     parse_rules:
-      title: ".article-title"
-      content: ".article-body"
-      author: ".article-author"
+      content: "tiles-item-text"  # 这是包含日期、标题和链接的 div 类名
+      title: "tiles-item-text-title"  # 标题的 class 名称
+      title_tag: "h3"  # 标题所在的标签
+      date: "tiles-item-text-date"  # 日期的 class 名称
+      endpoint: ""  # 如果链接直接在标题下，可以省略或根据实际情况添加
     date_formats:
-      - "January 2, 2006"
+      - "January 2, 2006"   # 格式化日期的方式
       - "2 January 2006"
+      - "2006-01-02"
+
+  - name: "Amgen"
+    base_url: "https://investors.amgen.com/news-releases"
+    parse_rules:
+      content: "item column col-sm-12 col-md-12"  # 包含日期、标题和链接的 div 的类名
+      date: "date-1"  # 日期的 class 名称
+      title_tag: "a"  # 标题所在的标签
+      title_class: "release-content title-1"  # 标题的 class 名称
+      link_tag: "a"  # 链接所在的标签
+      link_class: "release-content title-1"  # 链接的 class 名称
+    date_formats:
+      - "01.02.2006"  # 日期格式，支持如 "11.08.2024" 这样的日期
+      - "02.01.2006"
       - "2006-01-02"

@@ -54,11 +54,12 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		url := site.BaseURL
 
 		// 使用 Fetch 函数获取网页内容
-		utf8Body, err := fetch.Fetch(url, 30*time.Second)
+		utf8Body, err := fetch.Fetch(url, 30*time.Second, site)
 		if err != nil {
 			log.Printf("Error fetching URL %s: %v\n", url, err)
 			continue // 如果抓取失败，继续下一个 URL
 		}
+		fmt.Printf("网页内容：%v", utf8Body)
 
 		// 解析网页内容
 		result, err := parse.Parse(utf8Body, site)
@@ -71,7 +72,7 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		existingEndpoint, err := client.GetKey(site.Name) // 获取 Redis 中存储的值
 		if err == nil && existingEndpoint == result.Endpoint {
 			// 如果 Redis 中已有相同的 Endpoint，跳过处理
-			log.Printf("跳过站点 %s，因为内容已存在\n", site.Name)
+			log.Printf("跳过站点 %s, 因为内容已存在\n", site.Name)
 			continue
 		}
 

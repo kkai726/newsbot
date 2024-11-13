@@ -6,7 +6,7 @@ toolchain go1.23.2
 
 require (
 	github.com/anaskhan96/soup v1.2.5
-	github.com/chromedp/chromedp v0.11.1
+	github.com/chromedp/chromedp v0.11.2
 	github.com/go-redis/redis/v8 v8.11.5
 	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
 	golang.org/x/text v0.3.6

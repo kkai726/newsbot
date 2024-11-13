@@ -1,13 +1,12 @@
 package fetch
 
 import (
+	"code/config"
 	"context"
 	"fmt"
 	"io"
 	"strings"
 	"time"
-
-	"log"
 
 	"github.com/chromedp/chromedp"
 	"golang.org/x/net/html"
@@ -16,40 +15,44 @@ import (
 )
 
 // Fetch 获取网页内容
-func Fetch(url string, timeout time.Duration) (string, error) {
-	// 设置远程 Chromium 实例的调试地址
-	chromeURL := "http://localhost:9222" // 默认情况下 Docker 会暴露该端口
+func Fetch(url string, timeout time.Duration, siteConfig config.SiteConfig) (string, error) {
+	// 设置 WebSocket URL，指向远程 Chrome 实例
+	wsURL := "ws://localhost:9222" // 连接到 WebSocket 上的 Chrome 实例
 
-	// 设置超时
+	// 创建远程上下文连接到远程 Chrome 实例
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	// 创建一个带有远程调试地址的上下文
-	allocCtx, cancel := chromedp.NewRemoteAllocator(ctx, chromeURL)
+	// 创建浏览器执行器分配器，并配置选项
+	allocatorCtx, cancel := chromedp.NewRemoteAllocator(ctx, wsURL)
 	defer cancel()
 
-	// 创建一个新的上下文
-	ctx2, cancel := chromedp.NewContext(allocCtx)
+	// 创建新的浏览器上下文
+	ctx, cancel = chromedp.NewContext(allocatorCtx)
 	defer cancel()
 
-	// 在该上下文中运行任务
-	var htmlContent string
-	err := chromedp.Run(ctx2,
-		chromedp.Navigate(url),
-		chromedp.OuterHTML("html", &htmlContent), // 获取整个 HTML 内容
-	)
-	if err != nil {
+	// 设置浏览器视口大小，模拟正常浏览器行为
+	if err := chromedp.Run(ctx, chromedp.EmulateViewport(1280, 1024)); err != nil {
+		return "", fmt.Errorf("设置浏览器视口错误: %v", err)
+	}
+
+	var content string
+	// 执行浏览器操作，抓取网页内容
+	if err := chromedp.Run(ctx,
+		chromedp.Navigate(url), // 导航到目标 URL
+		chromedp.WaitVisible(siteConfig.ParseRules["content"], chromedp.ByQuery),                                     // 等待页面上的特定元素可见
+		chromedp.Text(fmt.Sprintf("%s:first-of-type", siteConfig.ParseRules["content"]), &content, chromedp.ByQuery), // 获取特定元素的文本内容
+	); err != nil {
 		return "", fmt.Errorf("chromedp 错误: %v", err)
 	}
 
-	// 检测并转换编码
-	utf8Body, err := determineEncoding(htmlContent)
+	// 处理并返回抓取的 HTML 内容
+	utf8Content, err := determineEncoding(content)
 	if err != nil {
-		log.Printf("编码检测失败: %v", err)
-		return "", fmt.Errorf("编码转换失败: %w", err)
+		return "", fmt.Errorf("编码转换错误: %v", err)
 	}
 
-	return utf8Body, nil
+	return utf8Content, nil
 }
 
 // determineEncoding 检测并转换 HTML 内容编码
@@ -86,6 +89,14 @@ func findCharsetInMetaTags(doc *html.Node) string {
 				if attr.Key == "charset" {
 					encoding = attr.Val
 					return
+				}
+				if attr.Key == "http-equiv" && attr.Val == "Content-Type" {
+					for _, metaAttr := range n.Attr {
+						if metaAttr.Key == "content" && strings.Contains(metaAttr.Val, "charset") {
+							encoding = strings.Split(metaAttr.Val, "charset=")[1]
+							return
+						}
+					}
 				}
 			}
 		}

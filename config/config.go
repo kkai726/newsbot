@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -21,7 +21,7 @@ type Config struct {
 
 // LoadConfig 加载配置文件
 func LoadConfig(filename string) (*Config, error) {
-	file, err := ioutil.ReadFile(filename)
+	file, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("无法读取配置文件: %v", err)
 	}
