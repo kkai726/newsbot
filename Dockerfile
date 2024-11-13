@@ -28,6 +28,9 @@ WORKDIR /root/
 # Copy the pre-built binary from the builder stage
 COPY --from=builder /app/newsbot .
 
+# Copy the configuration file into the container
+COPY config/webconfig.yaml /root/config/webconfig.yaml
+
 # Expose the port your application runs on
 EXPOSE 8080
 

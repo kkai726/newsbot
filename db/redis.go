@@ -58,7 +58,7 @@ type RedisParam struct {
 // 初始化 Redis 配置
 func initRedisParam() *RedisParam {
 	return &RedisParam{
-		Addr:     "localhost:6379",
+		Addr:     "my-redis:6379",
 		Password: "",              // Redis 密码
 		DB:       0,               // 默认数据库
 		Timeout:  5 * time.Second, // 默认超时 5 秒

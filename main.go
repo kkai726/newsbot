@@ -54,14 +54,15 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		url := site.BaseURL
 
 		// 使用 Fetch 函数获取网页内容
-		utf8Body, err := fetch.Fetch(url, 30*time.Second, site)
+		utf8Body, err := fetch.Fetch(url, 30*time.Second)
 		if err != nil {
 			log.Printf("Error fetching URL %s: %v\n", url, err)
 			continue // 如果抓取失败，继续下一个 URL
 		}
-		fmt.Printf("网页内容：%v", utf8Body)
 
-		// 解析网页内容
+		// fmt.Printf("%v", utf8Body)
+
+		// 解析网页内容，使用 Colly 解析内容
 		result, err := parse.Parse(utf8Body, site)
 		if err != nil {
 			log.Printf("Error parsing content from URL %s: %v\n", url, err)
@@ -77,7 +78,7 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		}
 
 		// 使用 fmt.Sprintf 创建消息
-		message := fmt.Sprintf("%s最新消息: %s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date)
+		message := fmt.Sprintf("%s 最新消息: %s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date)
 
 		// 发送消息到 Lark
 		err = lark.PushToLark(LarkWebHook, message)

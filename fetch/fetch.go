@@ -1,53 +1,52 @@
 package fetch
 
 import (
-	"code/config"
-	"context"
 	"fmt"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/chromedp/chromedp"
+	"github.com/gocolly/colly/v2"
 	"golang.org/x/net/html"
 	"golang.org/x/text/encoding/htmlindex"
 	"golang.org/x/text/transform"
 )
 
 // Fetch 获取网页内容
-func Fetch(url string, timeout time.Duration, siteConfig config.SiteConfig) (string, error) {
-	// 设置 WebSocket URL，指向远程 Chrome 实例
-	wsURL := "ws://localhost:9222" // 连接到 WebSocket 上的 Chrome 实例
+func Fetch(url string, timeout time.Duration) (string, error) {
+	// 创建一个新的 Colly 爬虫
+	c := colly.NewCollector(
+		// 设置请求超时
+		colly.Async(true),
+	)
 
-	// 创建远程上下文连接到远程 Chrome 实例
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	// 创建浏览器执行器分配器，并配置选项
-	allocatorCtx, cancel := chromedp.NewRemoteAllocator(ctx, wsURL)
-	defer cancel()
-
-	// 创建新的浏览器上下文
-	ctx, cancel = chromedp.NewContext(allocatorCtx)
-	defer cancel()
-
-	// 设置浏览器视口大小，模拟正常浏览器行为
-	if err := chromedp.Run(ctx, chromedp.EmulateViewport(1280, 1024)); err != nil {
-		return "", fmt.Errorf("设置浏览器视口错误: %v", err)
-	}
+	// 设置请求超时
+	c.SetRequestTimeout(timeout)
 
 	var content string
-	// 执行浏览器操作，抓取网页内容
-	if err := chromedp.Run(ctx,
-		chromedp.Navigate(url), // 导航到目标 URL
-		chromedp.WaitVisible(siteConfig.ParseRules["content"], chromedp.ByQuery),                                     // 等待页面上的特定元素可见
-		chromedp.Text(fmt.Sprintf("%s:first-of-type", siteConfig.ParseRules["content"]), &content, chromedp.ByQuery), // 获取特定元素的文本内容
-	); err != nil {
-		return "", fmt.Errorf("chromedp 错误: %v", err)
+
+	// 设置请求回调函数来获取页面的 HTML 内容
+	c.OnResponse(func(r *colly.Response) {
+		// 获取整个响应的 HTML 内容
+		content = string(r.Body)
+	})
+
+	// 错误处理回调
+	c.OnError(func(r *colly.Response, err error) {
+		fmt.Printf("请求错误: %v\n", err)
+	})
+
+	// 开始抓取页面
+	err := c.Visit(url)
+	if err != nil {
+		return "", fmt.Errorf("colly 错误: %v", err)
 	}
 
-	// 处理并返回抓取的 HTML 内容
-	utf8Content, err := determineEncoding(content)
+	// 等待爬虫完成抓取
+	c.Wait()
+
+	// 处理并返回抓取的HTML内容
+	utf8Content, err := determineEncoding(content) // 这里调用 `determineEncoding` 来处理抓取到的 HTML 内容
 	if err != nil {
 		return "", fmt.Errorf("编码转换错误: %v", err)
 	}

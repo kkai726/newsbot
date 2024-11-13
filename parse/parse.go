@@ -1,7 +1,6 @@
 package parse
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -28,8 +27,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 
 	// 只抓取第一个符合 contentSelector 的元素
 	contentSelector := siteConfig.ParseRules["content"]
-	contentElement := doc.Find(contentSelector) // Find 只会返回第一个匹配的元素
-
+	contentElement := doc.Find(contentSelector)
 	if contentElement.Error != nil {
 		return nil, fmt.Errorf("未找到符合内容选择器 (%s) 的元素", contentSelector)
 	}
@@ -41,7 +39,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 	}
 
 	// 打印日期
-	fmt.Printf("时间：%s", dateStr)
+	fmt.Printf("时间：%s\n", dateStr)
 
 	// 解析日期格式
 	date, err := parseDate(dateStr, siteConfig.DateFormats)
@@ -65,7 +63,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 		return nil, fmt.Errorf("未找到标题")
 	}
 	result.Title = title
-	fmt.Printf("标题：%s", title)
+	fmt.Printf("标题：%s\n", title)
 
 	// 获取链接
 	endpoint := extractLink(contentElement, siteConfig.ParseRules["link_tag"], siteConfig.ParseRules["link_class"])
@@ -73,7 +71,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 		return nil, fmt.Errorf("未找到链接")
 	}
 	result.Endpoint = endpoint
-	fmt.Printf("链接：%s", endpoint)
+	fmt.Printf("链接：%s\n", endpoint)
 
 	// 打印结果
 	fmt.Printf("Title: %s\nEndpoint: %s\nDate: %s\n", result.Title, result.Endpoint, result.Date.Format("January 2, 2006"))
@@ -99,12 +97,12 @@ func parseDate(dateStr string, dateFormats []string) (time.Time, error) {
 			return date, nil
 		}
 	}
-	return time.Time{}, errors.New("日期解析失败，所有格式都无法解析")
+	return time.Time{}, fmt.Errorf("日期解析失败，所有格式都无法解析")
 }
 
 // extractTitle 提取标题
 func extractTitle(element soup.Root, titleTag, titleClass string) string {
-	// 假设您有标题的 CSS 选择器
+	// 假设您有标题的标签和类名
 	titleElement := element.Find(titleTag, "class", titleClass)
 	if titleElement.Error != nil {
 		return ""
@@ -114,7 +112,7 @@ func extractTitle(element soup.Root, titleTag, titleClass string) string {
 
 // extractLink 提取文章链接
 func extractLink(element soup.Root, linkTag, linkClass string) string {
-	// 假设您有链接的 CSS 选择器
+	// 假设您有链接的标签和类名
 	linkElement := element.Find(linkTag, "class", linkClass)
 	if linkElement.Error != nil {
 		return ""
