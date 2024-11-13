@@ -27,7 +27,7 @@ func main() {
 	}
 
 	// 调用 scheduleFetch 函数，设置每 15 分钟执行一次
-	scheduleFetch(config, 15*time.Minute, client)
+	scheduleFetch(config, 5*time.Minute, client)
 }
 
 // scheduleFetch 每隔指定时间执行一次抓取和处理操作
