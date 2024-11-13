@@ -1,0 +1,11 @@
+sites:
+  - name: "英伟达"
+    base_url: "https://nvidianews.nvidia.com/"
+    parse_rules:
+      title: ".article-title"
+      content: ".article-body"
+      author: ".article-author"
+    date_formats:
+      - "January 2, 2006"
+      - "2 January 2006"
+      - "2006-01-02"
