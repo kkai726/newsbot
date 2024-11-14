@@ -67,10 +67,11 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 	titleClasses := strings.Split(siteConfig.ParseRules["title"], ",") // 分割多个类名
 	var titleElement soup.Root
 	for _, className := range titleClasses {
-		// 查找匹配的标题元素
-		titleElement = paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
-		if titleElement.Error == nil {
-			break // 找到匹配的类名后停止
+		// 查找标题元素
+		tempElement := paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
+		if tempElement.Error == nil {
+			titleElement = tempElement
+			break // 找到标题元素，跳出循环
 		}
 	}
 
@@ -80,13 +81,32 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 	}
 
 	// 提取标题和链接
-	result.Title = titleElement.Text()
+	// result.Title = titleElement.Text()
+	// fmt.Printf("标题是：%v\n", result.Title)
 
-	// 提取链接并拼接成完整的 URL
-	relativeURL := titleElement.Attrs()["href"]
-	if relativeURL == "" {
-		return nil, fmt.Errorf("未找到链接")
+	// 尝试从 <a> 标签中提取链接
+	aElement := titleElement.Find("a")
+	var relativeURL string
+
+	if aElement.Error != nil {
+		// 如果没有找到 <a> 标签，检查 titleElement 是否有 href 属性
+		hrefAttr, ok := titleElement.Attrs()["href"]
+		if !ok || hrefAttr == "" {
+			return nil, fmt.Errorf("未找到链接")
+		}
+		relativeURL = hrefAttr
+		result.Title = titleElement.Text()
+	} else {
+		// 如果找到了 <a> 标签，提取 href 属性
+		hrefAttr, ok := aElement.Attrs()["href"]
+		if !ok || hrefAttr == "" {
+			return nil, fmt.Errorf("未找到链接")
+		}
+		relativeURL = hrefAttr
+		result.Title = aElement.Text()
 	}
+
+	// fmt.Printf("链接是： %v\n", relativeURL)
 
 	// 拼接成完整的 URL（如果是相对路径）
 	parsedURL, err := url.Parse(relativeURL)
