@@ -18,6 +18,6 @@ sites:
       date: "date-1"
       date_tag: "span"
       title_tag: "a"
-      title_class: "release-content,title-1"
+      title: "release-content,title-1"
     date_formats:
       - "01.02.2006"  # Amgen网站日期格式

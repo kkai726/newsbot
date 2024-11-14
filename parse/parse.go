@@ -64,7 +64,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 
 	// 提取标题和链接
 	// 处理 title_class 配置，分割多个类名
-	titleClasses := strings.Split(siteConfig.ParseRules["title_class"], ",") // 分割多个类名
+	titleClasses := strings.Split(siteConfig.ParseRules["title"], ",") // 分割多个类名
 	var titleElement soup.Root
 	for _, className := range titleClasses {
 		// 查找匹配的标题元素
