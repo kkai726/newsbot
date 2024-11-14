@@ -11,6 +11,7 @@ import (
 type SiteConfig struct {
 	Name        string            `yaml:"name"`
 	BaseURL     string            `yaml:"base_url"`
+	RealURL     string            `yaml:"real_url"`
 	ParseRules  map[string]string `yaml:"parse_rules"`
 	DateFormats []string          `yaml:"date_formats"`
 }

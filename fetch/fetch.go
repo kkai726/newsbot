@@ -23,6 +23,16 @@ func Fetch(url string, timeout time.Duration) (string, error) {
 	// 设置请求超时
 	c.SetRequestTimeout(timeout)
 
+	// 设置 User-Agent 模拟浏览器
+	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+
+	// 设置请求头中的 Cookie（如果有需要）
+	c.OnRequest(func(r *colly.Request) {
+		r.Headers.Set("Cookie", "__jsluid_h=382abac99be2999e55b92c39875af9e2; __jsl_clearance=1731595344.967|0|djiPf%2FlegL2y5Oy60KMb669en5M%3D")
+		// 设置 Referer
+		r.Headers.Set("Referer", url)
+	})
+
 	var content string
 
 	// 设置请求回调函数来获取页面的 HTML 内容
@@ -35,6 +45,12 @@ func Fetch(url string, timeout time.Duration) (string, error) {
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Printf("请求错误: %v\n", err)
 	})
+
+	// 设置随机请求延迟，防止频繁请求被检测
+	// c.Limit(&colly.LimitRule{
+	// 	DomainGlob:  "*",
+	// 	RandomDelay: 2 * time.Second, // 每次请求之间随机延迟 2 秒
+	// })
 
 	// 开始抓取页面
 	err := c.Visit(url)

@@ -26,8 +26,8 @@ func main() {
 		log.Fatalf("加载配置失败: %v", err)
 	}
 
-	// 调用 scheduleFetch 函数，设置每 15 分钟执行一次
-	scheduleFetch(config, 5*time.Minute, client)
+	// 调用 scheduleFetch 函数，设置每 2 分钟执行一次
+	scheduleFetch(config, 2*time.Minute, client)
 }
 
 // scheduleFetch 每隔指定时间执行一次抓取和处理操作
@@ -78,7 +78,7 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		}
 
 		// 使用 fmt.Sprintf 创建消息
-		message := fmt.Sprintf("%s 最新消息: %s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date)
+		message := fmt.Sprintf("%s\n最新消息:\n%s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date.Format("2006-01-02"))
 
 		// 发送消息到 Lark
 		err = lark.PushToLark(LarkWebHook, message)

@@ -1,23 +1,88 @@
 sites:
   - name: "英伟达"
-    base_url: "https://nvidianews.nvidia.com/"
+    base_url: "https://nvidianews.nvidia.com"
+    real_url: ""
     parse_rules:
       content: "tiles-item-text"  # 这是包含日期、标题和链接的 div 类名
+      content_tag: "div"
+      content_mode: "class"
       title: "tiles-item-text-title"  # 标题的 class 名称
       title_tag: "h3"  # 标题所在的标签
+      title_mode: "class"
       date: "tiles-item-text-date"  # 日期的 class 名称
       date_tag: "div"
-      endpoint: ""  # 如果链接直接在标题下，可以省略或根据实际情况添加
+      "date_in": "yes"
     date_formats:
       - "January 2, 2006"   # 格式化日期的方式
 
   - name: "Amgen"
     base_url: "https://investors.amgen.com/news-releases"
+    real_url: ""
     parse_rules:
       content: "item,column,col-sm-12,col-md-12"
+      content_tag: "div"
+      content_mode: "class"
       date: "date-1"
       date_tag: "span"
+      date_mode: "class"
       title_tag: "a"
       title: "release-content,title-1"
+      title_mode: "class"
+      date_in: "yes" #是否在class中
     date_formats:
       - "01.02.2006"  # Amgen网站日期格式
+
+  - name: "中国人民银行"
+    base_url: "http://www.pbc.gov.cn/goutongjiaoliu/113456/113469/11040/index1.html"  # 你实际的基础 URL
+    real_url: "http://www.pbc.gov.cn"
+    parse_rules:
+      content: "newslist_style"  # 这个 td 标签包含了标题和日期信息
+      content_tag: "font"
+      content_mode: "class"
+      title: ""  # 标题的 class 名称
+      title_tag: "a"  # 标题所在的标签
+      title_mode: ""
+      date: "hui12"  # 日期的 class 名称
+      date_tag: "span"  # 日期所在的标签
+      date_mode: "class"
+      date_in: "no"
+    date_formats:
+      - "2006-01-02"  # 格式化日期的方式，假设日期格式为 "2024-11-13"
+
+  - name: "中国人民政府"
+    base_url: "https://www.gov.cn/yaowen/liebiao/"  # 你实际的基础 URL
+    real_url: ""
+    parse_rules:
+      content: "list,list_1,list_2"  # 这个 td 标签包含了标题和日期信息
+      content_tag: "div"
+      content_mode: "class"
+      title: ""  # 标题的 class 名称
+      title_tag: "a"  # 标题所在的标签
+      title_mode: ""
+      date: "date"  # 日期的 class 名称
+      date_tag: "span"  # 日期所在的标签
+      date_mode: "class"
+      date_in: "yes"
+    date_formats:
+      - "2006-01-02"  # 格式化日期的方式，假设日期格式为 "2024-11-13"
+
+  - name: "中国国务院"
+    base_url: "http://www.scio.gov.cn/xwfb/fbhyg_13737"  # 你实际的基础 URL
+    real_url: ""
+    parse_rules:
+      content: "zxfbyg"  # 目标 div 类名
+      content_tag: "div"  # 内容外层标签
+      content_mode: "class"  # 按类名查找
+      title: ""  # 标题的 class 名称，空表示不使用 class 来选择
+      title_tag: "a"  # 标题所在标签是 <a>
+      title_mode: ""  # 按标签选择
+      date: ""  # 日期的 class 名称
+      date_tag: "span,i"  # 日期是 span > i，调整为准确的标签
+      date_mode: ""
+      date_in: "yes"  # 表示日期信息在 span 和 i 内
+    date_formats:
+      - "2006-01-02"  # 格式化日期的方式
+
+
+#<div class="tiles-item-text"><div class="tiles-item-text-date">November 13, 2024</div><h3 class="tiles-item-text-title">    </h3><div class="index-item-text-link"> </div></div>
+#<a href="/goutongjiaoliu/113456/113469/5506288/index.html" onclick="void(0)" target="_blank" title="中国人民银行副行长宣昌能出席国际清算银行行长例会">中国人民银行副行长宣昌能出席国际清算银行行长例会</a>
