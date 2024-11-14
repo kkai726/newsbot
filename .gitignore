@@ -1,2 +1,5 @@
 # 忽略 vendor 目录
 /vendor/
+
+# 忽略config/config.yaml
+/config/config.yaml

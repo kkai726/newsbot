@@ -30,6 +30,7 @@ COPY --from=builder /app/newsbot .
 
 # Copy the configuration file into the container
 COPY config/webconfig.yaml /root/config/webconfig.yaml
+COPY config/config.yaml /root/config/config.yaml
 
 # Expose the port your application runs on
 EXPOSE 8080

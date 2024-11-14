@@ -8,8 +8,10 @@ require (
 	github.com/anaskhan96/soup v1.2.5
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gocolly/colly/v2 v2.1.0
-	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
-	golang.org/x/text v0.3.6
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.1040
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tmt v1.0.1040
+	golang.org/x/net v0.27.0
+	golang.org/x/text v0.16.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 

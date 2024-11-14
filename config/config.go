@@ -15,8 +15,17 @@ type SiteConfig struct {
 	DateFormats []string          `yaml:"date_formats"`
 }
 
+
+type TencentParamsConfig struct {
+	SecretID  string `yaml:"secret_id"`
+	SecretKey string `yaml:"secret_key"`
+}
+
+
 type Config struct {
 	Sites []SiteConfig `yaml:"sites"`
+
+	TencentParams  TencentParamsConfig  `yaml:"tencent_params"`
 }
 
 // LoadConfig 加载配置文件
@@ -34,3 +43,4 @@ func LoadConfig(filename string) (*Config, error) {
 
 	return &config, nil
 }
+

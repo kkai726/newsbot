@@ -2,11 +2,17 @@ package parse
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/anaskhan96/soup"
+
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
+	tmt "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/tmt/v20180321"
 
 	"code/config"
 )
@@ -15,6 +21,54 @@ type Result struct {
 	Title    string
 	Endpoint string
 	Date     time.Time
+}
+
+func translate(text, targetLang string) (string, error) {
+	// 使用你的腾讯云 SecretId 和 SecretKey
+	// 加载配置文件
+	config, err := config.LoadConfig("config/config.yaml")
+	if err != nil {
+		log.Fatalf("加载配置失败: %v", err)
+	}
+
+	credential := common.NewCredential(
+		config.TencentParams.SecretID,  // 替换为你的 SecretId
+		config.TencentParams.SecretKey, // 替换为你的 SecretKey
+	)
+
+	// 配置客户端的 region 和端点
+	cpf := profile.NewClientProfile()
+	cpf.HttpProfile.Endpoint = "tmt.tencentcloudapi.com" // 腾讯云翻译 API 的端点
+
+	// 实例化 TMT 客户端
+	client, err := tmt.NewClient(credential, "ap-guangzhou", cpf)
+	if err != nil {
+		return "", fmt.Errorf("创建 TMT 客户端失败: %v", err)
+	}
+
+	// 实例化请求对象
+	request := tmt.NewTextTranslateRequest()
+
+	// 获取项目 ID，假设没有配置其他项目，使用默认项目 ID: 0
+	projectID := int64(0) // 默认项目 ID
+
+	// 设置源文本、源语言和目标语言
+	request.SourceText = common.StringPtr(text)
+	request.Source = common.StringPtr("auto")
+	request.Target = common.StringPtr(targetLang)
+	request.ProjectId = &projectID
+
+	// 发送请求并获取响应
+	response, err := client.TextTranslate(request)
+	if err != nil {
+		if sdkErr, ok := err.(*errors.TencentCloudSDKError); ok {
+			log.Printf("API 错误：%s", sdkErr)
+		}
+		return text, fmt.Errorf("翻译请求失败: %v", err)
+	}
+
+	// 提取翻译结果并返回
+	return *response.Response.TargetText, nil
 }
 
 // Parse 解析给定的 HTML 内容并提取标题和链接
@@ -77,7 +131,7 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 
 	// 如果没有找到标题，返回错误
 	if titleElement.Error != nil {
-		return nil, fmt.Errorf("未找到标题: %v", titleElement.Error)
+		return nil, fmt.Errorf("未找到标题: %v\n", titleElement.Error)
 	}
 
 	// 提取标题和链接
@@ -105,6 +159,13 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 		relativeURL = hrefAttr
 		result.Title = aElement.Text()
 	}
+
+	// 将标题翻译成中文
+	translatedTitle, err := translate(result.Title, "zh")
+	if err != nil {
+		fmt.Printf("标题翻译失败: %v", err)
+	}
+	result.Title = translatedTitle
 
 	// fmt.Printf("链接是： %v\n", relativeURL)
 
