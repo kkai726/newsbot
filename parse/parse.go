@@ -87,10 +87,10 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 	}
 
 	// 提取日期
-	date, _ := getDate(paragraphs, doc, siteConfig)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	date, err := getDate(paragraphs, doc, siteConfig)
+	if err != nil {
+		return nil, err
+	}
 	result.Date = date
 
 	// 提取标题和链接
@@ -181,13 +181,13 @@ func findDateInParagraphs(paragraphs []soup.Root, dateTags []string) soup.Root {
 // getTitleAndEndpoint 提取标题和链接
 func getTitleAndEndpoint(paragraphs []soup.Root, siteConfig config.SiteConfig) (string, string, error) {
 	var titleElement soup.Root
+	var title string
 	if siteConfig.ParseRules["title_mode"] == "class" {
 		// 处理 title_class 配置
 		titleClasses := strings.Split(siteConfig.ParseRules["title"], ",")
 		for _, className := range titleClasses {
-			tempElement := paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
-			if tempElement.Error == nil {
-				titleElement = tempElement
+			titleElement = paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
+			if titleElement.Error == nil {
 				break
 			}
 		}
@@ -209,12 +209,14 @@ func getTitleAndEndpoint(paragraphs []soup.Root, siteConfig config.SiteConfig) (
 			return "", "", fmt.Errorf("未找到链接")
 		}
 		relativeURL = hrefAttr
+		title = titleElement.Text()
 	} else {
 		hrefAttr, ok := aElement.Attrs()["href"]
 		if !ok || hrefAttr == "" {
 			return "", "", fmt.Errorf("未找到链接")
 		}
 		relativeURL = hrefAttr
+		title = aElement.Text()
 	}
 
 	// 拼接完整URL
@@ -234,10 +236,10 @@ func getTitleAndEndpoint(paragraphs []soup.Root, siteConfig config.SiteConfig) (
 		fullURL = relativeURL
 	}
 
-	return titleElement.Text(), fullURL, nil
+	return title, fullURL, nil
 }
 
-// getFullURL 拼接并清理相对路径URL
+// 去除 URL 中重复的路径部分
 func getFullURL(baseURL, relativeURL string) (string, error) {
 	// 解析 base_url 和 relativeURL
 	parsedBaseURL, err := url.Parse(baseURL)
