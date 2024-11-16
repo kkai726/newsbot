@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const LarkWebHook = "https://open.feishu.cn/open-apis/bot/v2/hook/4329e228-0cab-499c-9915-b7dad761d1d6"
+const LarkWebHook = "https://open.feishu.cn/open-apis/bot/v2/hook/6710fb77-c813-4d32-b4a4-7a890a4d76db"
 
 func main() {
 	// 连接 Redis
@@ -78,7 +78,19 @@ func ProcessSites(config *config.Config, client db.DatabaseClient) {
 		}
 
 		// 使用 fmt.Sprintf 创建消息
-		message := fmt.Sprintf("%s\n最新消息:\n%s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date.Format("2006-01-02"))
+		// message := fmt.Sprintf("%s\n最新消息:\n%s\n链接: %s\n日期: %s", site.Name, result.Title, result.Endpoint, result.Date.Format("2006-01-02"))
+		// 使用 fmt.Sprintf 创建消息，添加分隔符和突出显示的格式
+		message := fmt.Sprintf(
+			"【%s】\n\n"+ // 网站名称，突出显示
+				"📢 最新消息:\n"+ // 添加提醒符号
+				"➡️ %s\n\n"+ // 标题，使用箭头突出显示
+				"🔗 链接: %s\n"+ // 链接行
+				"📅 日期: %s", // 日期行
+			site.Name,
+			result.Title,
+			result.Endpoint,
+			result.Date.Format("2006-01-02"),
+		)
 
 		// 发送消息到 Lark
 		err = lark.PushToLark(LarkWebHook, message)

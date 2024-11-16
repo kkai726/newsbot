@@ -83,6 +83,57 @@ sites:
     date_formats:
       - "2006-01-02"  # 格式化日期的方式
 
+  - name: "英特尔"
+    base_url: "https://www.intc.com/news-events/press-releases"  # 你实际的基础 URL
+    real_url: ""
+    parse_rules:
+      content: "media-description"  # 目标 div 类名
+      content_tag: "div"  # 内容外层标签
+      content_mode: "class"  # 按类名查找
+      title: ""  # 标题的 class 名称，空表示不使用 class 来选择
+      title_tag: "a"  # 标题所在标签是 <a>
+      title_mode: ""  # 按标签选择
+      date: ""  # 日期的 class 名称
+      date_tag: "time"  # 日期是 span > i，调整为准确的标签
+      date_mode: ""
+      date_in: "yes"  # 表示日期信息在 span 和 i 内
+    date_formats:
+      - "Jan 2, 2006 3:04 PM MST"  # 根据 <time> 标签中的 datetime 格式进行日期格式化
+  
+  - name: "hims & hers"
+    base_url: "https://investors.hims.com/news/default.aspx"  # 你实际的基础 URL
+    real_url: ""
+    parse_rules:
+      content: "module_item"  # 目标 div 类名
+      content_tag: "div"  # 内容外层标签
+      content_mode: "class"  # 按类名查找
+      title: "module_headline-link"  # 标题的 class 名称，空表示不使用 class 来选择
+      title_tag: "a"  # 标题所在标签是 <a>
+      title_mode: "class"  # 按标签选择
+      date: "module_date-time"  # 日期的 class 名称
+      date_tag: "div"  # 日期是 span > i，调整为准确的标签
+      date_mode: "class"
+      date_in: "yes"  # 表示日期信息在 span 和 i 内
+    date_formats:
+      - "01/02/2006"  # 根据 <time> 标签中的 datetime 格式进行日期格式化
+
+  - name: "亚马逊新闻"
+    base_url: "https://www.aboutamazon.com/news"  # 你实际的基础 URL
+    real_url: ""
+    parse_rules:
+      content: "PromoCardSearchResults-title"  # 目标 div 类名
+      content_tag: "div"  # 内容外层标签
+      content_mode: "class"  # 按类名查找
+      title: ""  # 标题的 class 名称，空表示不使用 class 来选择
+      title_tag: "a"  # 标题所在标签是 <a>
+      title_mode: ""  # 按标签选择
+      date: "PromoCardSearchResults-date"  # 日期的 class 名称
+      date_tag: "div"  # 日期是 span > i，调整为准确的标签
+      date_mode: "class"
+      date_in: "no"  # 表示日期信息在 span 和 i 内
+    date_formats:
+      - "January 2, 2006"  # 根据 <time> 标签中的 datetime 格式进行日期格式化
+
 
 #<div class="tiles-item-text"><div class="tiles-item-text-date">November 13, 2024</div><h3 class="tiles-item-text-title">    </h3><div class="index-item-text-link"> </div></div>
 #<a href="/goutongjiaoliu/113456/113469/5506288/index.html" onclick="void(0)" target="_blank" title="中国人民银行副行长宣昌能出席国际清算银行行长例会">中国人民银行副行长宣昌能出席国际清算银行行长例会</a>

@@ -27,11 +27,11 @@ func Fetch(url string, timeout time.Duration) (string, error) {
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 
 	// 设置请求头中的 Cookie（如果有需要）
-	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("Cookie", "__jsluid_h=382abac99be2999e55b92c39875af9e2; __jsl_clearance=1731595344.967|0|djiPf%2FlegL2y5Oy60KMb669en5M%3D")
-		// 设置 Referer
-		r.Headers.Set("Referer", url)
-	})
+	// c.OnRequest(func(r *colly.Request) {
+	// 	r.Headers.Set("Cookie", "__jsluid_h=382abac99be2999e55b92c39875af9e2; __jsl_clearance=1731595344.967|0|djiPf%2FlegL2y5Oy60KMb669en5M%3D")
+	// 	// 设置 Referer
+	// 	r.Headers.Set("Referer", url)
+	// })
 
 	var content string
 

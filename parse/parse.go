@@ -99,41 +99,45 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 	// 提取日期并去除空白字符
 	dateTags := strings.Split(siteConfig.ParseRules["date_tag"], ",") // 分割多个类名
 	var dateStr string
+	var dateElement soup.Root
 	if siteConfig.ParseRules["date_in"] == "yes" {
 		if siteConfig.ParseRules["date_mode"] != "" {
-			dateStr = paragraphs[0].Find(siteConfig.ParseRules["date_tag"], siteConfig.ParseRules["date_mode"], siteConfig.ParseRules["date"]).Text()
+			dateElement = paragraphs[0].Find(siteConfig.ParseRules["date_tag"], siteConfig.ParseRules["date_mode"], siteConfig.ParseRules["date"])
 		} else if siteConfig.ParseRules["date_mode"] == "" {
-			dataElement := paragraphs[0]
+			dateElement = paragraphs[0]
 			for _, dateTag := range dateTags {
-				dataElement = dataElement.Find(dateTag)
+				dateElement = dateElement.Find(dateTag)
 			}
-			dateStr = dataElement.Text()
 		}
 	} else {
-		dateStr = doc.Find(siteConfig.ParseRules["date_tag"], siteConfig.ParseRules["date_mode"], siteConfig.ParseRules["date"]).Text()
-	}
-	if dateStr == "" {
-		return nil, fmt.Errorf("未找到日期")
+		dateElement = doc.Find(siteConfig.ParseRules["date_tag"], siteConfig.ParseRules["date_mode"], siteConfig.ParseRules["date"])
+
 	}
 
-	resDate := strings.TrimSpace(dateStr)
-	// 解析日期
-	date, err := time.Parse(siteConfig.DateFormats[0], resDate) // 使用配置的第一个日期格式
-	if err != nil {
-		return nil, fmt.Errorf("日期解析错误: %v", err)
+	if dateElement.Error != nil {
+		return nil, fmt.Errorf("未找到日期元素: %v", dateElement.Error)
 	}
-	// 设置解析后的日期
-	result.Date = date
+	dateStr = dateElement.Text()
 
-	// 获取当前时间并进行对比
-	compareDate, err := time.Parse("2006年01月02日", "2024年10月24日")
-	if err != nil {
-		return nil, fmt.Errorf("对比日期解析错误: %v", err)
-	}
-	if result.Date.Before(compareDate) {
-		return nil, nil // 如果日期早于对比日期则跳过
-	}
+	if dateStr != "" {
+		resDate := strings.TrimSpace(dateStr)
+		// 解析日期
+		date, err := time.Parse(siteConfig.DateFormats[0], resDate) // 使用配置的第一个日期格式
+		if err != nil {
+			return nil, fmt.Errorf("日期解析错误: %v", err)
+		}
+		// 设置解析后的日期
+		result.Date = date
 
+		// 获取当前时间并进行对比
+		compareDate, err := time.Parse("2006年01月02日", "2024年10月24日")
+		if err != nil {
+			return nil, fmt.Errorf("对比日期解析错误: %v", err)
+		}
+		if result.Date.Before(compareDate) {
+			return nil, nil // 如果日期早于对比日期则跳过
+		}
+	}
 	// 提取标题和链接
 	var titleElement soup.Root
 	if siteConfig.ParseRules["title_mode"] == "class" {
