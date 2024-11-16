@@ -216,14 +216,11 @@ func Parse(htmlContent string, siteConfig config.SiteConfig) (*Result, error) {
 
 // 去除 URL 中重复的路径部分
 func getFullURL(baseURL, relativeURL string) (string, error) {
-	fmt.Printf("原链接为！！！！: %v", baseURL)
 	// 解析 base_url 和 relativeURL
 	parsedBaseURL, err := url.Parse(baseURL)
 	if err != nil {
 		return "", fmt.Errorf("base_url 解析错误: %v", err)
 	}
-
-	fmt.Printf("basePath链接为！！！！: %v\n", parsedBaseURL.Path)
 
 	parsedRelativeURL, err := url.Parse(relativeURL)
 	if err != nil {
