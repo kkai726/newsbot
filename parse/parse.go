@@ -241,13 +241,6 @@ func getFullURL(baseURL, relativeURL string) (string, error) {
 		// 拼接 basePath 和 relativePath
 		fullPath := basePath + "/" + relativePath
 
-		// 去除重复的部分
-		// 以 basePath 的结尾为基准，去除重复的路径片段
-		// if strings.HasPrefix(fullPath, basePath+"/") {
-		// 	// fullPath = strings.TrimPrefix(fullPath, basePath)
-		// 	fullPath = strings.Replace(fullPath, basePath, "", 1) // 只替换第一次出现的 basePath
-		// }
-
 		// 如果 fullPath 中有多个 basePath 部分，去除多余的部分
 		// 保证最终只保留一个 basePath
 		fullPath = strings.Replace(fullPath, basePath, "", -1) // 去掉所有的 basePath 部分
