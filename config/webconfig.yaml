@@ -128,7 +128,7 @@ sites:
       title_tag: "a"  # 标题所在标签是 <a>
       title_mode: ""  # 按标签选择
       date: "PromoCardSearchResults-date"  # 日期的 class 名称
-      date_tag: "div"  # 日期是 span > i，调整为准确的标签
+      date_tag: "div,span"  # 日期是 span > i，调整为准确的标签
       date_mode: "class"
       date_in: "no"  # 表示日期信息在 span 和 i 内
     date_formats:

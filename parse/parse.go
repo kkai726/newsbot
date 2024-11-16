@@ -185,8 +185,9 @@ func getTitleAndEndpoint(paragraphs []soup.Root, siteConfig config.SiteConfig) (
 		// 处理 title_class 配置
 		titleClasses := strings.Split(siteConfig.ParseRules["title"], ",")
 		for _, className := range titleClasses {
-			titleElement = paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
-			if titleElement.Error == nil {
+			tempElement := paragraphs[0].Find(siteConfig.ParseRules["title_tag"], "class", className)
+			if tempElement.Error == nil {
+				titleElement = tempElement
 				break
 			}
 		}
